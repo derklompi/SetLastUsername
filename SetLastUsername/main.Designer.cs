@@ -103,6 +103,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "main";
+            this.ShowIcon = false;
             this.Text = "Benutzernamen setzen";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.main_FormClosing);
             this.Load += new System.EventHandler(this.main_Load);
