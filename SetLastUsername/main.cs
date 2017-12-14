@@ -82,6 +82,10 @@ namespace SetLastUsername
             cbUsernames.Items.Remove("Default");
             cbUsernames.Items.Remove("Default User");
             cbUsernames.Items.Remove("Public");
+
+
+            string result = System.Environment.UserDomainName;
+            txtDomain.Text = result;
         }
     }
 }
