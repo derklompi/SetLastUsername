@@ -35,23 +35,23 @@ namespace SetLastUsername
                 string userID;
                 userID = txtUsernameID.Text;
 
-                Microsoft.Win32.RegistryKey key;
-                key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI", true);
-                key.SetValue("LastLoggedOnSAMUser", username);
-                key.SetValue("LastLoggedOnUser", username);
-                key.SetValue("LastLoggedOnDisplayName", "");
+                Microsoft.Win32.RegistryKey LogOnUI;
+                LogOnUI = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI", true);
+                LogOnUI.SetValue("LastLoggedOnSAMUser", username);
+                LogOnUI.SetValue("LastLoggedOnUser", username);
+                LogOnUI.SetValue("LastLoggedOnDisplayName", "");
 
                 if (lblWinVer.Text == "W10")
                 {
-                    key.SetValue("LastLoggedOnUserSID", userID);
-                    key.SetValue("SelectedUserSID", userID);
+                    LogOnUI.SetValue("LastLoggedOnUserSID", userID);
+                    LogOnUI.SetValue("SelectedUserSID", userID);
                 }
 
                 string lastSam;
                 string lastUser;
 
-                lastSam = Convert.ToString(key.GetValue("LastLoggedOnSAMUser"));
-                lastUser = Convert.ToString(key.GetValue("LastLoggedOnUser"));
+                lastSam = Convert.ToString(LogOnUI.GetValue("LastLoggedOnSAMUser"));
+                lastUser = Convert.ToString(LogOnUI.GetValue("LastLoggedOnUser"));
              
                 if (lastSam == username && lastUser == username)
                 {
