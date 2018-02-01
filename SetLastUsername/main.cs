@@ -2,6 +2,8 @@
 using System.Windows.Forms;
 using System.Security.Principal;
 using System.IO;
+using System.Management;
+
 
 namespace SetLastUsername
 {
@@ -9,7 +11,7 @@ namespace SetLastUsername
     {
         public main()
         {
-            InitializeComponent();
+            InitializeComponent();           
         }
 
         private void btnChange_Click(object sender, EventArgs e)
@@ -18,7 +20,6 @@ namespace SetLastUsername
             WindowsIdentity identity = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             adminRights = principal.IsInRole(WindowsBuiltInRole.Administrator);
-
 
             if(adminRights)
             {
@@ -31,7 +32,8 @@ namespace SetLastUsername
                 {
                     username = cbUsernames.Text;
                 }
-                
+                string userID;
+                userID = txtUsernameID.Text;
 
                 Microsoft.Win32.RegistryKey key;
                 key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI", true);
@@ -39,12 +41,18 @@ namespace SetLastUsername
                 key.SetValue("LastLoggedOnUser", username);
                 key.SetValue("LastLoggedOnDisplayName", "");
 
+                if (lblWinVer.Text == "W10")
+                {
+                    key.SetValue("LastLoggedOnUserSID", userID);
+                    key.SetValue("SelectedUserSID", userID);
+                }
+
                 string lastSam;
                 string lastUser;
 
                 lastSam = Convert.ToString(key.GetValue("LastLoggedOnSAMUser"));
                 lastUser = Convert.ToString(key.GetValue("LastLoggedOnUser"));
-
+             
                 if (lastSam == username && lastUser == username)
                 {
                     MessageBox.Show("Der Benutzer " + username + " wurde erfolgreich eingetragen");
@@ -70,6 +78,20 @@ namespace SetLastUsername
 
         private void main_Load(object sender, EventArgs e)
         {
+            int WinMajorVersion = Environment.OSVersion.Version.Major;
+            switch (WinMajorVersion)
+            {
+                case 6:
+                    lblWinVer.Text = "W7";
+                    break;
+                case 10:
+                    lblWinVer.Text = "W10";
+                    break;
+                default:
+                    lblWinVer.Text = "??";
+                    break;
+            }
+
             string[] files = Directory.GetDirectories(@"C:\\Users\");
             foreach (string item in files)
             {
@@ -83,9 +105,26 @@ namespace SetLastUsername
             cbUsernames.Items.Remove("Default User");
             cbUsernames.Items.Remove("Public");
 
-
             string result = System.Environment.UserDomainName;
             txtDomain.Text = result;
+        }
+
+        private void cbUsernames_TextChanged(object sender, EventArgs e)
+        {
+            if (cbUsernames.Text !="")
+            {
+                string a = "C:\\Users\\" + cbUsernames.Text;
+                ManagementObjectSearcher query = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
+
+                foreach (ManagementObject mo in query.Get())
+                {
+                    if (mo["LocalPath"].ToString() == a)
+                    {
+                        txtUsernameID.Text = mo["SID"].ToString();
+                    }
+                }
+            }
+            
         }
     }
 }

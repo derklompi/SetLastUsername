@@ -34,11 +34,13 @@
             this.cbLR = new System.Windows.Forms.CheckBox();
             this.txtDomain = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.txtUsernameID = new System.Windows.Forms.TextBox();
+            this.lblWinVer = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnChange
             // 
-            this.btnChange.Location = new System.Drawing.Point(99, 52);
+            this.btnChange.Location = new System.Drawing.Point(95, 78);
             this.btnChange.Name = "btnChange";
             this.btnChange.Size = new System.Drawing.Size(78, 23);
             this.btnChange.TabIndex = 0;
@@ -62,6 +64,7 @@
             this.cbUsernames.Name = "cbUsernames";
             this.cbUsernames.Size = new System.Drawing.Size(121, 21);
             this.cbUsernames.TabIndex = 4;
+            this.cbUsernames.TextChanged += new System.EventHandler(this.cbUsernames_TextChanged);
             // 
             // cbLR
             // 
@@ -88,12 +91,30 @@
             this.label1.TabIndex = 7;
             this.label1.Text = "\\";
             // 
+            // txtUsernameID
+            // 
+            this.txtUsernameID.Enabled = false;
+            this.txtUsernameID.Location = new System.Drawing.Point(77, 52);
+            this.txtUsernameID.Name = "txtUsernameID";
+            this.txtUsernameID.Size = new System.Drawing.Size(285, 20);
+            this.txtUsernameID.TabIndex = 9;
+            // 
+            // lblWinVer
+            // 
+            this.lblWinVer.AutoSize = true;
+            this.lblWinVer.Location = new System.Drawing.Point(29, 59);
+            this.lblWinVer.Name = "lblWinVer";
+            this.lblWinVer.Size = new System.Drawing.Size(0, 13);
+            this.lblWinVer.TabIndex = 10;
+            // 
             // main
             // 
             this.AcceptButton = this.btnChange;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(261, 86);
+            this.ClientSize = new System.Drawing.Size(374, 147);
+            this.Controls.Add(this.lblWinVer);
+            this.Controls.Add(this.txtUsernameID);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtDomain);
             this.Controls.Add(this.cbLR);
@@ -120,6 +141,8 @@
         private System.Windows.Forms.CheckBox cbLR;
         private System.Windows.Forms.TextBox txtDomain;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtUsernameID;
+        private System.Windows.Forms.Label lblWinVer;
     }
 }
 
