@@ -49,20 +49,44 @@ namespace SetLastUsername
 
                 string lastSam;
                 string lastUser;
+                string lastLSID;
+                string lastUSID;
 
                 lastSam = Convert.ToString(LogOnUI.GetValue("LastLoggedOnSAMUser"));
                 lastUser = Convert.ToString(LogOnUI.GetValue("LastLoggedOnUser"));
-             
-                if (lastSam == username && lastUser == username)
-                {
-                    MessageBox.Show("Der Benutzer " + username + " wurde erfolgreich eingetragen");
-                    this.Close();
+                lastLSID = Convert.ToString(LogOnUI.GetValue("LastLoggedOnUserSID"));
+                lastUSID = Convert.ToString(LogOnUI.GetValue("SelectedUserSID"));
 
+                int WinMajorVersion = Environment.OSVersion.Version.Major;
+                switch (WinMajorVersion)
+                {
+                    case 6:
+                        if (lastSam == username && lastUser == username)
+                        {
+                            MessageBox.Show("Der Benutzer " + username + " wurde erfolgreich eingetragen");
+                            this.Close();
+
+                        }
+                        break;
+                    case 10:
+                        if (lastSam == username && lastUser == username && userID == lastLSID && userID == lastUSID)
+                        {
+                            MessageBox.Show("Der Benutzer " + username + " wurde erfolgreich eingetragen");
+                            this.Close();
+
+                        }
+                        break;
+                    default:
+                        MessageBox.Show("Windows-Version konnte nicht erkannt werden");
+                        this.Close();
+                        break;
                 }
+                
             }
             else
             {
                 MessageBox.Show("Bitte als Administrator ausführen");
+                this.Close();
             }       
         }
 
@@ -92,28 +116,29 @@ namespace SetLastUsername
                     break;
             }
 
-            string[] files = Directory.GetDirectories(@"C:\\Users\");
-            foreach (string item in files)
+            string username;
+            ManagementObjectSearcher query = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
+
+            foreach (ManagementObject mo in query.Get())
             {
-                FileInfo f = new FileInfo(item);
-                cbUsernames.Items.Add(f.Name);
+                username = mo["LocalPath"].ToString();
+                username = username.Substring(username.LastIndexOf(@"\")+1);
+                cbUsernames.Items.Add(username);
             }
 
-            cbUsernames.Items.Remove("Administrator");
-            cbUsernames.Items.Remove("All Users");
-            cbUsernames.Items.Remove("Default");
-            cbUsernames.Items.Remove("Default User");
-            cbUsernames.Items.Remove("Public");
+            cbUsernames.Items.Remove("NetworkService");
+            cbUsernames.Items.Remove("LocalService");
+            cbUsernames.Items.Remove("systemprofile");
 
-            string result = System.Environment.UserDomainName;
-            txtDomain.Text = result;
+            string domain = System.Environment.UserDomainName;
+            txtDomain.Text = domain;
         }
 
         private void cbUsernames_TextChanged(object sender, EventArgs e)
         {
             if (cbUsernames.Text !="")
             {
-                string a = "C:\\Users\\" + cbUsernames.Text;
+                string a = @"C:\Users\" + cbUsernames.Text;
                 ManagementObjectSearcher query = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
 
                 foreach (ManagementObject mo in query.Get())
