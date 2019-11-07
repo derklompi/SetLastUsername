@@ -52,10 +52,10 @@ namespace SetLastUsername
                 string lastLSID;
                 string lastUSID;
 
-                lastSam = Convert.ToString(LogOnUI.GetValue("LastLoggedOnSAMUser"));
-                lastUser = Convert.ToString(LogOnUI.GetValue("LastLoggedOnUser"));
-                lastLSID = Convert.ToString(LogOnUI.GetValue("LastLoggedOnUserSID"));
-                lastUSID = Convert.ToString(LogOnUI.GetValue("SelectedUserSID"));
+                lastSam = LogOnUI.GetValue("LastLoggedOnSAMUser").ToString();
+                lastUser = LogOnUI.GetValue("LastLoggedOnUser").ToString();
+                lastLSID = LogOnUI.GetValue("LastLoggedOnUserSID").ToString();
+                lastUSID = LogOnUI.GetValue("SelectedUserSID").ToString();
 
                 int WinMajorVersion = Environment.OSVersion.Version.Major;
                 switch (WinMajorVersion)
@@ -102,6 +102,34 @@ namespace SetLastUsername
 
         private void main_Load(object sender, EventArgs e)
         {
+            
+        }
+
+        private void cbUsernames_TextChanged(object sender, EventArgs e)
+        {
+            if (cbUsernames.Text !="")
+            {
+                string a = @"C:\Users\" + cbUsernames.Text;
+                //ManagementScope scope = new ManagementScope(@"\\" + machineId + @"\root\cimv2");
+                ManagementScope scope = new ManagementScope(@"\\" + tbRemotePC.Text + @"\root\cimv2");
+                scope.Connect();
+                SelectQuery query1 = new SelectQuery("SELECT * FROM Win32_UserProfile");
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query1);
+                // ManagementObjectSearcher query = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
+
+                foreach (ManagementObject mo in searcher.Get())
+                {
+                    if (mo["LocalPath"].ToString() == a)
+                    {
+                        txtUsernameID.Text = mo["SID"].ToString();
+                    }
+                }
+            }
+            
+        }
+
+        private void btnLoadInfo_Click(object sender, EventArgs e)
+        {
             int WinMajorVersion = Environment.OSVersion.Version.Major;
             switch (WinMajorVersion)
             {
@@ -117,12 +145,17 @@ namespace SetLastUsername
             }
 
             string username;
-            ManagementObjectSearcher query = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
+            //ManagementScope scope = new ManagementScope(@"\\" + machineId + @"\root\cimv2");
+            ManagementScope scope = new ManagementScope(@"\\" + tbRemotePC.Text + @"\root\cimv2");
+            scope.Connect();
+            SelectQuery query1 = new SelectQuery("SELECT * FROM Win32_UserProfile");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query1);
+            // ManagementObjectSearcher query = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
 
-            foreach (ManagementObject mo in query.Get())
+            foreach (ManagementObject mo in searcher.Get())
             {
                 username = mo["LocalPath"].ToString();
-                username = username.Substring(username.LastIndexOf(@"\")+1);
+                username = username.Substring(username.LastIndexOf(@"\") + 1);
                 cbUsernames.Items.Add(username);
             }
 
@@ -132,24 +165,6 @@ namespace SetLastUsername
 
             string domain = System.Environment.UserDomainName;
             txtDomain.Text = domain;
-        }
-
-        private void cbUsernames_TextChanged(object sender, EventArgs e)
-        {
-            if (cbUsernames.Text !="")
-            {
-                string a = @"C:\Users\" + cbUsernames.Text;
-                ManagementObjectSearcher query = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
-
-                foreach (ManagementObject mo in query.Get())
-                {
-                    if (mo["LocalPath"].ToString() == a)
-                    {
-                        txtUsernameID.Text = mo["SID"].ToString();
-                    }
-                }
-            }
-            
         }
     }
 }
