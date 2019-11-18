@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using System.Security.Principal;
 using System.IO;
 using System.Management;
-
+using Microsoft.Win32;
 
 namespace SetLastUsername
 {
@@ -37,14 +37,19 @@ namespace SetLastUsername
 
                 Microsoft.Win32.RegistryKey LogOnUI;
                 LogOnUI = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI", true);
-                LogOnUI.SetValue("LastLoggedOnSAMUser", username);
-                LogOnUI.SetValue("LastLoggedOnUser", username);
-                LogOnUI.SetValue("LastLoggedOnDisplayName", "");
+
+                RegistryKey baseKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, "SBL-NB230");
+                RegistryKey rkeyUsers = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+
+
+                rkeyUsers.SetValue("LastLoggedOnSAMUser", username);
+                rkeyUsers.SetValue("LastLoggedOnUser", username);
+                rkeyUsers.SetValue("LastLoggedOnDisplayName", "");
 
                 if (lblWinVer.Text == "W10")
                 {
-                    LogOnUI.SetValue("LastLoggedOnUserSID", userID);
-                    LogOnUI.SetValue("SelectedUserSID", userID);
+                    rkeyUsers.SetValue("LastLoggedOnUserSID", userID);
+                    rkeyUsers.SetValue("SelectedUserSID", userID);
                 }
 
                 string lastSam;
@@ -52,10 +57,10 @@ namespace SetLastUsername
                 string lastLSID;
                 string lastUSID;
 
-                lastSam = LogOnUI.GetValue("LastLoggedOnSAMUser").ToString();
-                lastUser = LogOnUI.GetValue("LastLoggedOnUser").ToString();
-                lastLSID = LogOnUI.GetValue("LastLoggedOnUserSID").ToString();
-                lastUSID = LogOnUI.GetValue("SelectedUserSID").ToString();
+                lastSam = rkeyUsers.GetValue("LastLoggedOnSAMUser").ToString();
+                lastUser = rkeyUsers.GetValue("LastLoggedOnUser").ToString();
+                lastLSID = rkeyUsers.GetValue("LastLoggedOnUserSID").ToString();
+                lastUSID = rkeyUsers.GetValue("SelectedUserSID").ToString();
 
                 int WinMajorVersion = Environment.OSVersion.Version.Major;
                 switch (WinMajorVersion)
@@ -165,6 +170,18 @@ namespace SetLastUsername
 
             string domain = System.Environment.UserDomainName;
             txtDomain.Text = domain;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            RegistryKey baseKey = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, "SBL-NB230");
+            RegistryKey rkeyUsers = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI");
+
+
+            MessageBox.Show(rkeyUsers.GetValue("LastLoggedOnSAMUser").ToString());
+
+
+
         }
     }
 }
